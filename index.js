@@ -1,3 +1,28 @@
+/*
+const fs = require("fs")
+var mime = require('mime-types')
+function readFileToBase64 (url) {
+  let arr = [];
+  return new Promise((r, j) => {
+    fs.createReadStream(url, { highWaterMark: 9999999 })
+      .on('data', chunk => arr.push(chunk))
+      .on('end', chunk => {
+        let base64Img = "data:" + mime.lookup(url) + ";base64," + Buffer.concat(arr).toString('base64')
+        r(base64Img)
+      })
+      .on('error', err => {
+        j(err)
+      })
+  })
+
+}
+readFileToBase64("./a.jpg").then(r => {
+  console.log('r: ', r);
+})
+————————————————
+版权声明：本文为CSDN博主「易之晓晓」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/qq_42306443/article/details/106430510
+*/
 const request = require('request-promise');
 const rq = require('request');
 const cheerio = require('cheerio');
@@ -31,32 +56,8 @@ async function downloadCaptcha() {
     }
 }
 
-async function getCaptcha() {
-    //downloadCaptcha();
-    return new Promise((resolve, reject) => {
-        mod.get(url, function (res) {
-            let chunks = []
-            let size = 0
-            res.on('data', function (chunk) {
-                chunks.push(chunk)
-                size += chunk.length
-            })
-            res.on('end', function (err) {
-                if (err) {
-                    reject(err);
-                } else {
-                    let data = Buffer.concat(chunks, size)
-                    let base64Pre = 'data:image/jpg;base64,'
-                    let base64Img = /*base64Pre +*/ data.toString('base64')
-                    resolve(base64Img);
-                }
-            })
-        })
-    })
-}
-
 async function readCaptcha() {
-    let base64str = await getCaptcha();
+    let base64str = await downloadCaptcha();
     //console.log(base64str);
     let res = await request({
         method: 'POST',
@@ -87,7 +88,11 @@ async function readCaptcha() {
     }
 }
 
+var cache = undefined
 async function getToken() {
+    if (cache != undefined) {
+        return cache
+    }
     return new Promise(async (resolve, reject) => {
         let html = await request({
             url: 'https://www.luogu.com.cn/',
@@ -97,6 +102,7 @@ async function getToken() {
         let chapters = $('meta');
         chapters.each(function (item) {
             if ($(this).attr('name') == 'csrf-token') {
+                cache = $(this).attr('content');
                 resolve($(this).attr('content'));
             }
         });
@@ -115,6 +121,7 @@ function sleep(time) {
 var jar = request.jar();
 
 async function sendEmail() {
+    await getToken();
     try {
         await request({
             url: "https://www.luogu.com.cn/",
