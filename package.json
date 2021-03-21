@@ -1,0 +1,24 @@
+{
+  "name": "luogu-500000-user",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "swift-zym",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.5",
+    "fs": "0.0.1-security",
+    "gm": "^1.23.1",
+    "http": "0.0.1-security",
+    "https": "^1.0.0",
+    "node-tesseract": "^0.2.7",
+    "path": "^0.12.7",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6",
+    "sleep": "^6.3.0",
+    "tough-cookie": "^4.0.0"
+  }
+}
